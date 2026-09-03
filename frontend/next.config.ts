@@ -7,8 +7,10 @@ const withPWA = withPWAInit({
   register: true,
 });
 
-const nextConfig: NextConfig = {
-  /* your existing config options here if any */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  turbopack: {}, // Tells Next.js to allow Turbopack with custom plugins
+  // ... rest of your existing config
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;
