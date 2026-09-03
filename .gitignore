@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.next/
+__pycache__/
+*.pyc
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.production
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Python Virtual Environments
+venv/
+.venv/
+env/
+ENV/
