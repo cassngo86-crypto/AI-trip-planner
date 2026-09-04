@@ -36,6 +36,71 @@ const WORLDWIDE_COUNTRIES = [
   "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vatican City", "Vietnam", "Zimbabwe"
 ];
 
+const AIRPORTS_BY_COUNTRY: Record<string, string[]> = {
+  Malaysia: [
+    "Kuala Lumpur International (KUL)",
+    "Penang International (PEN)",
+    "Kota Kinabalu International (BKI)",
+    "Kuching International (KCH)",
+    "Senai International (JHB)",
+    "Langawi International (LGK)"
+  ],
+  Japan: [
+    "Tokyo Narita (NRT)",
+    "Tokyo Haneda (HND)",
+    "Kansai International (KIX)",
+    "Chubu Centrair (NGO)",
+    "New Chitose / Sapporo (CTS)",
+    "Fukuoka Airport (FUK)"
+  ],
+  Singapore: [
+    "Singapore Changi (SIN)",
+    "Seletar Airport (XSP)"
+  ],
+  Switzerland: [
+    "Zurich Airport (ZRH)",
+    "Geneva Airport (GVA)",
+    "EuroAirport Basel Mulhouse Freiburg (BSL)",
+    "Bern Airport (BRN)"
+  ],
+  "United States": [
+    "John F. Kennedy / New York (JFK)",
+    "Los Angeles International (LAX)",
+    "San Francisco International (SFO)",
+    "Chicago O'Hare (ORD)",
+    "Miami International (MIA)"
+  ],
+  "United Kingdom": [
+    "London Heathrow (LHR)",
+    "London Gatwick (LGW)",
+    "Manchester Airport (MAN)",
+    "Edinburgh Airport (EDI)"
+  ],
+  Australia: [
+    "Sydney Kingsford Smith (SYD)",
+    "Melbourne Airport (MEL)",
+    "Brisbane Airport (BNE)",
+    "Perth Airport (PER)"
+  ],
+  Thailand: [
+    "Bangkok Suvarnabhumi (BKK)",
+    "Don Mueang / Bangkok (DMK)",
+    "Phuket International (HKT)",
+    "Chiang Mai International (CNX)"
+  ],
+  Indonesia: [
+    "Jakarta Soekarno-Hatta (CGK)",
+    "Bali Ngurah Rai (DPS)",
+    "Surabaya Juanda (SUB)"
+  ],
+  "South Korea": [
+    "Seoul Incheon (ICN)",
+    "Seoul Gimpo (GMP)",
+    "Gimhae / Busan (PUS)",
+    "Jeju International (CJU)"
+  ]
+};
+
 const WORLDWIDE_CURRENCIES = [
   "AED - UAE Dirham", "AUD - Australian Dollar", "CAD - Canadian Dollar", "CHF - Swiss Franc",
   "CNY - Chinese Yuan", "EUR - Euro", "GBP - British Pound", "HKD - Hong Kong Dollar",
@@ -52,6 +117,8 @@ const HOTEL_SUGGESTIONS: Record<string, string[]> = {
   Zurich: ["Old Town (Altstadt)", "Zurich Central Station (HB)", "Lake Zurich Waterfront"],
   Lucerne: ["Lucerne Old Town", "Lake Lucerne Promenade"],
   Singapore: ["Marina Bay Sands Vicinity", "Orchard Road", "Bugis / Kampong Glam"],
+  "Kuala Lumpur": ["Bukit Bintang", "KLCC / City Centre", "KL Sentral Station"],
+  Penang: ["George Town Heritage Zone", "Batu Ferringhi Beach"],
 };
 
 interface TripStop {
@@ -190,6 +257,9 @@ export default function Home() {
   const [arrivalTime, setArrivalTime] = useState("10:00");
   const [departureTime, setDepartureTime] = useState("18:00");
 
+  // Dynamic airport options based on selected country
+  const airportOptions = AIRPORTS_BY_COUNTRY[selectedCountry] || [];
+
   // Multi-Stop State
   const [stops, setStops] = useState<TripStop[]>([
     { id: "1", city: "Tokyo", days: 3, hotelLocation: "Shinjuku Station Area" },
@@ -201,30 +271,43 @@ export default function Home() {
   const [activeDayTab, setActiveDayTab] = useState<number>(1);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-  if (!selectedCountry) return;
-  async function fetchCities() {
-    try {
-      setLoadingCities(true);
-      const res = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country: selectedCountry }),
-      });
-      const data = await res.json();
-      if (data.data && data.data.length > 0) {
-        setCitiesList(data.data);
-      } else {
-        setCitiesList([]);
-      }
-    } catch (err) {
-      setCitiesList([]);
-    } finally {
-      setLoadingCities(false);
+  // Handle Country selection change & update available airports
+  const handleCountryChange = (newCountry: string) => {
+    setSelectedCountry(newCountry);
+    const availableAirports = AIRPORTS_BY_COUNTRY[newCountry] || [];
+    if (availableAirports.length > 0) {
+      setArrivalGateway(availableAirports[0]);
+      setDepartureGateway(availableAirports[availableAirports.length > 1 ? 1 : 0]);
+    } else {
+      setArrivalGateway("");
+      setDepartureGateway("");
     }
-  }
-  fetchCities();
-}, [selectedCountry]);
+  };
+
+  useEffect(() => {
+    if (!selectedCountry) return;
+    async function fetchCities() {
+      try {
+        setLoadingCities(true);
+        const res = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: selectedCountry }),
+        });
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          setCitiesList(data.data);
+        } else {
+          setCitiesList([]);
+        }
+      } catch (err) {
+        setCitiesList([]);
+      } finally {
+        setLoadingCities(false);
+      }
+    }
+    fetchCities();
+  }, [selectedCountry]);
 
   const totalDays = stops.reduce((acc, stop) => acc + (Number(stop.days) || 0), 0);
 
@@ -268,7 +351,7 @@ export default function Home() {
     return `${String(formattedHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatus("Processing Open-Jaw Multi-City Route with AI Agent Fleet...");
@@ -280,7 +363,6 @@ export default function Home() {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/generate-itinerary`, {
-        
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -361,7 +443,7 @@ export default function Home() {
               <SearchableCombobox
                 label="Country / Region"
                 value={selectedCountry}
-                onChange={setSelectedCountry}
+                onChange={handleCountryChange}
                 options={countriesList}
                 placeholder="Search country..."
                 icon={MapPin}
@@ -418,18 +500,14 @@ export default function Home() {
                     <PlaneLanding className="w-4 h-4" /> Arrival Logistics
                   </span>
                   <div className="space-y-3">
-                    <div>
-                      <label className="text-xs font-medium text-slate-300 mb-1 block">
-                        Arrival Airport / City
-                      </label>
-                      <input
-                        type="text"
-                        value={arrivalGateway}
-                        onChange={(e) => setArrivalGateway(e.target.value)}
-                        placeholder="e.g. Tokyo Narita (NRT)"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
-                      />
-                    </div>
+                    <SearchableCombobox
+                      label="Arrival Airport / City"
+                      value={arrivalGateway}
+                      onChange={setArrivalGateway}
+                      options={airportOptions}
+                      placeholder={`Select or type airport for ${selectedCountry}...`}
+                      icon={PlaneLanding}
+                    />
                     <div>
                       <label className="text-xs font-medium text-slate-300 mb-1 block">
                         Arrival Time
@@ -450,18 +528,14 @@ export default function Home() {
                     <PlaneTakeoff className="w-4 h-4" /> Departure Logistics
                   </span>
                   <div className="space-y-3">
-                    <div>
-                      <label className="text-xs font-medium text-slate-300 mb-1 block">
-                        Departure Airport / City
-                      </label>
-                      <input
-                        type="text"
-                        value={departureGateway}
-                        onChange={(e) => setDepartureGateway(e.target.value)}
-                        placeholder="e.g. Kansai International (KIX)"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
-                      />
-                    </div>
+                    <SearchableCombobox
+                      label="Departure Airport / City"
+                      value={departureGateway}
+                      onChange={setDepartureGateway}
+                      options={airportOptions}
+                      placeholder={`Select or type airport for ${selectedCountry}...`}
+                      icon={PlaneTakeoff}
+                    />
                     <div>
                       <label className="text-xs font-medium text-slate-300 mb-1 block">
                         Departure Time
@@ -674,4 +748,4 @@ export default function Home() {
       </main>
     </div>
   );
-};
+}
