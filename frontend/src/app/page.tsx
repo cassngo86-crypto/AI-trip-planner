@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Plane,
   MapPin,
@@ -43,7 +43,7 @@ const AIRPORTS_BY_COUNTRY: Record<string, string[]> = {
     "Kota Kinabalu International (BKI)",
     "Kuching International (KCH)",
     "Senai International (JHB)",
-    "Langawi International (LGK)"
+    "Langkawi International (LGK)"
   ],
   Japan: [
     "Tokyo Narita (NRT)",
@@ -148,7 +148,7 @@ function SearchableCombobox({
   label,
   value,
   onChange,
-  options,
+  options = [],
   placeholder,
   loading,
   icon: Icon,
@@ -164,9 +164,10 @@ function SearchableCombobox({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredOptions = options.filter((opt) =>
+  const matches = options.filter((opt) =>
     opt.toLowerCase().includes(value.toLowerCase())
   );
+  const filteredOptions = matches.length > 0 ? matches : options;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -205,7 +206,7 @@ function SearchableCombobox({
         />
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen((prev) => !prev)}
           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
         >
           <ChevronDown className="w-4 h-4" />
@@ -218,7 +219,8 @@ function SearchableCombobox({
             filteredOptions.map((opt) => (
               <li
                 key={opt}
-                onClick={() => {
+                onMouseDown={(e) => {
+                  e.preventDefault();
                   onChange(opt);
                   setIsOpen(false);
                 }}
@@ -232,7 +234,7 @@ function SearchableCombobox({
             ))
           ) : (
             <li className="px-3 py-2 text-xs text-slate-400 italic">
-              Custom entry allowed
+              Type to enter custom entry
             </li>
           )}
         </ul>
@@ -257,8 +259,12 @@ export default function Home() {
   const [arrivalTime, setArrivalTime] = useState("10:00");
   const [departureTime, setDepartureTime] = useState("18:00");
 
-  // Dynamic airport options based on selected country
-  const airportOptions = AIRPORTS_BY_COUNTRY[selectedCountry] || [];
+  // Dynamic airport options based on selected country with fallbacks
+  const airportOptions = AIRPORTS_BY_COUNTRY[selectedCountry] || [
+    "Major International Airport (Main)",
+    "Secondary Regional Airport",
+    "Capital City Airport"
+  ];
 
   // Multi-Stop State
   const [stops, setStops] = useState<TripStop[]>([
@@ -274,14 +280,12 @@ export default function Home() {
   // Handle Country selection change & update available airports
   const handleCountryChange = (newCountry: string) => {
     setSelectedCountry(newCountry);
-    const availableAirports = AIRPORTS_BY_COUNTRY[newCountry] || [];
-    if (availableAirports.length > 0) {
-      setArrivalGateway(availableAirports[0]);
-      setDepartureGateway(availableAirports[availableAirports.length > 1 ? 1 : 0]);
-    } else {
-      setArrivalGateway("");
-      setDepartureGateway("");
-    }
+    const availableAirports = AIRPORTS_BY_COUNTRY[newCountry] || [
+      "Major International Airport (Main)",
+      "Secondary Regional Airport"
+    ];
+    setArrivalGateway(availableAirports[0]);
+    setDepartureGateway(availableAirports[availableAirports.length > 1 ? 1 : 0]);
   };
 
   useEffect(() => {
@@ -487,7 +491,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Flight Gateways (Arrival & Departure Airports/Cities) */}
+            {/* Flight Gateways */}
             <div className="space-y-4 border-t border-slate-700/50 pt-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <Plane className="w-4 h-4 text-blue-400" /> Flight Gateways (Open-Jaw Support)
