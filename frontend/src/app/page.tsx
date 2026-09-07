@@ -359,7 +359,7 @@ export default function Home() {
     return `${String(formattedHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
-  // HANDLER: DOWNLOAD TXT (Filters by exportSelection state)
+  // HANDLER: DOWNLOAD TXT
   const handleDownloadTxt = () => {
     let content = `======================================\n`;
     content += `TRIP ARCHITECT ITINERARY - ${selectedCountry.toUpperCase()}\n`;
@@ -369,7 +369,6 @@ export default function Home() {
     content += `Total Duration: ${totalDays} Days\n`;
     content += `Budget: ${budget} ${currency.split(" - ")[0]}\n\n`;
 
-    // Filter target days based on exportSelection
     const daysToExport = exportSelection === "ALL" 
       ? itinerary 
       : itinerary.filter((d) => d.day === Number(exportSelection));
@@ -472,7 +471,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-blue-600/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-blue-600/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none print:hidden" />
 
       <main className="relative max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
         
@@ -739,7 +738,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* EXPORT TOOLBAR WITH DAY SELECTION CONTROL */}
+        {/* EXPORT TOOLBAR WITH SELECTION CONTROL */}
         {itinerary.length > 0 && (
           <section className="space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-800/90 border border-blue-500/30 shadow-xl print:hidden">
@@ -785,7 +784,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Days Tabs */}
+            {/* Days Tabs (Screen Only) */}
             <div className="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar print:hidden">
               {itinerary.map((d) => (
                 <button
@@ -803,9 +802,9 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Active Day Detail Display */}
+            {/* SCREEN VIEW: Active Day Tab Display */}
             {currentDayData && (
-              <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4 sm:p-6 shadow-xl space-y-5">
+              <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4 sm:p-6 shadow-xl space-y-5 print:hidden">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-700/60 pb-3">
                   <div>
                     <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
@@ -869,6 +868,61 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* PRINT / PDF CONTAINER (Hidden on screen, active on Print based on exportSelection) */}
+            <div className="hidden print:block space-y-8">
+              <div className="border-b border-black pb-4 mb-6">
+                <h1 className="text-2xl font-bold uppercase tracking-wide">
+                  Trip Itinerary: {selectedCountry}
+                </h1>
+                <p className="text-xs mt-1">
+                  <strong>Arrival:</strong> {arrivalGateway} ({format12Hour(arrivalTime)}) |{" "}
+                  <strong>Departure:</strong> {departureGateway} ({format12Hour(departureTime)})
+                </p>
+                <p className="text-xs">
+                  <strong>Duration:</strong> {totalDays} Days | <strong>Budget:</strong> {budget} {currency.split(" - ")[0]}
+                </p>
+              </div>
+
+              {itinerary.map((dayPlan) => {
+                const shouldDisplayInPrint =
+                  exportSelection === "ALL" || exportSelection === String(dayPlan.day);
+
+                if (!shouldDisplayInPrint) return null;
+
+                return (
+                  <div key={dayPlan.day} className="print-page-break space-y-4 pb-6">
+                    <div className="border-b border-slate-400 pb-2">
+                      <h2 className="text-lg font-bold">
+                        Day {dayPlan.day}: {dayPlan.title}
+                      </h2>
+                      {dayPlan.recommended_stay && (
+                        <p className="text-xs italic text-slate-700">
+                          Base Hotel: {dayPlan.recommended_stay}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      {dayPlan.activities.map((act, i) => (
+                        <div key={i} className="text-xs border-l-2 border-slate-300 pl-3 py-1 space-y-0.5">
+                          <div className="flex justify-between font-bold">
+                            <span>[{act.time}] {act.title}</span>
+                            <span>{act.cost}</span>
+                          </div>
+                          {act.transit_info && (
+                            <p className="text-slate-600">Transit: {act.transit_info}</p>
+                          )}
+                          {act.booking_link && (
+                            <p className="text-slate-500">Link: {act.booking_link}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </section>
         )}
       </main>

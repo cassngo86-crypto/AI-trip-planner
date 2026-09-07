@@ -3,8 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-
-  /* Theme variables defined via standard CSS syntax */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: Arial, Helvetica, sans-serif;
@@ -24,13 +22,34 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Print configuration for PDF exports */
+/* =========================================================
+   PRINT / PDF EXPORT ENGINE STYLES
+   ========================================================= */
 @media print {
-  body {
-    background: white !important;
-    color: black !important;
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
   }
+
+  /* Hide interactive elements when printing */
   .print\:hidden {
+    display: none !important;
+  }
+
+  /* Force printable container styling */
+  .print\:block {
+    display: block !important;
+  }
+
+  .print-page-break {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* Hide non-selected days during print */
+  .print-hide-day {
     display: none !important;
   }
 }
