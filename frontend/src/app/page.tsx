@@ -257,7 +257,7 @@ export default function Home() {
   const [budget, setBudget] = useState(2500);
   const [interest, setInterest] = useState("Culture & History");
 
-  // Flight/Airport Gateways
+  // Flight Gateways
   const [arrivalGateway, setArrivalGateway] = useState("Tokyo Narita (NRT)");
   const [departureGateway, setDepartureGateway] = useState("Kansai International (KIX)");
   const [arrivalTime, setArrivalTime] = useState("10:00");
@@ -266,7 +266,6 @@ export default function Home() {
   const airportOptions = AIRPORTS_BY_COUNTRY[selectedCountry] || [
     "Major International Airport (Main)",
     "Secondary Regional Airport",
-    "Capital City Airport",
   ];
 
   // Multi-Stop State
@@ -357,8 +356,8 @@ export default function Home() {
     return `${String(formattedHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
-  // Export functions (PDF / TXT)
-  const downloadTxt = () => {
+  // EXPORT / DOWNLOAD FUNCTIONS
+  const handleDownloadTxt = () => {
     let content = `======================================\n`;
     content += `TRIP ARCHITECT ITINERARY - ${selectedCountry.toUpperCase()}\n`;
     content += `======================================\n\n`;
@@ -392,7 +391,7 @@ export default function Home() {
     document.body.removeChild(element);
   };
 
-  const exportPdf = () => {
+  const handleExportPdf = () => {
     window.print();
   };
 
@@ -466,7 +465,7 @@ export default function Home() {
 
       <main className="relative max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
         
-        {/* Header & Mobile App Icon Branding */}
+        {/* Header */}
         <header className="space-y-3 border-b border-slate-800 pb-5 print:hidden">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -489,19 +488,17 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Mobile Testing & PWA Notice */}
+        {/* Mobile App Prompt */}
         <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between text-xs text-slate-300 print:hidden">
           <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Mobile Optimized: Tap <strong>"Add to Home Screen"</strong> in Safari/Chrome to test as a Native App.</span>
+            <span>Mobile Optimized: Tap <strong>"Add to Home Screen"</strong> to test as Native App.</span>
           </div>
         </div>
 
-        {/* Form Card */}
+        {/* Setup Form */}
         <section className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl space-y-6 print:hidden">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
-            {/* Country & Preferences */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <SearchableCombobox
                 label="Country / Region"
@@ -550,14 +547,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Flight Gateways */}
+            {/* Gateways */}
             <div className="space-y-4 border-t border-slate-700/50 pt-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Plane className="w-4 h-4 text-blue-400" /> Flight Gateways (Open-Jaw Support)
+                <Plane className="w-4 h-4 text-blue-400" /> Flight Gateways
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Arrival Gateway */}
                 <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                     <PlaneLanding className="w-4 h-4" /> Arrival Logistics
@@ -568,7 +564,7 @@ export default function Home() {
                       value={arrivalGateway}
                       onChange={setArrivalGateway}
                       options={airportOptions}
-                      placeholder={`Select or type airport for ${selectedCountry}...`}
+                      placeholder={`Select or type airport...`}
                       icon={PlaneLanding}
                     />
                     <div>
@@ -585,7 +581,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Departure Gateway */}
                 <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
                   <span className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
                     <PlaneTakeoff className="w-4 h-4" /> Departure Logistics
@@ -596,7 +591,7 @@ export default function Home() {
                       value={departureGateway}
                       onChange={setDepartureGateway}
                       options={airportOptions}
-                      placeholder={`Select or type airport for ${selectedCountry}...`}
+                      placeholder={`Select or type airport...`}
                       icon={PlaneTakeoff}
                     />
                     <div>
@@ -615,7 +610,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Multi-City Destinations Builder */}
+            {/* Destinations */}
             <div className="space-y-4 border-t border-slate-700/50 pt-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -706,7 +701,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -734,39 +728,37 @@ export default function Home() {
           </div>
         )}
 
-        {/* Itinerary Display & Download Actions */}
+        {/* ALWAYS-VISIBLE DOWNLOAD/EXPORT TOOLBAR IF ITINERARY EXISTS */}
         {itinerary.length > 0 && (
           <section className="space-y-4">
-            
-            {/* Download & Export Header Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-lg print:hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-800/90 border border-blue-500/30 shadow-xl print:hidden">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Download className="w-4 h-4 text-emerald-400" /> Download & Save
+                  <Download className="w-4 h-4 text-emerald-400" /> Export Itinerary
                 </h3>
-                <p className="text-xs text-slate-400">Export your generated itinerary for offline access.</p>
+                <p className="text-xs text-slate-400">Download formatted files or generate PDF printer view.</p>
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={downloadTxt}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition active:scale-95 border border-slate-600"
+                  onClick={handleDownloadTxt}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:bg-slate-800 text-slate-200 text-xs font-semibold transition border border-slate-600 shadow-md"
                 >
-                  <FileText className="w-3.5 h-3.5 text-blue-400" /> Export TXT
+                  <FileText className="w-4 h-4 text-blue-400" /> Download TXT
                 </button>
 
                 <button
                   type="button"
-                  onClick={exportPdf}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition active:scale-95 shadow-md shadow-emerald-600/20"
+                  onClick={handleExportPdf}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs font-semibold transition shadow-lg shadow-emerald-600/25"
                 >
-                  <Printer className="w-3.5 h-3.5" /> Save PDF / Print
+                  <Printer className="w-4 h-4" /> Print / Save PDF
                 </button>
               </div>
             </div>
 
-            {/* Day Selector Tabs */}
+            {/* Days Tabs */}
             <div className="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar print:hidden">
               {itinerary.map((d) => (
                 <button
@@ -784,7 +776,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Selected Day Activity View */}
+            {/* Active Day Detail */}
             {currentDayData && (
               <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4 sm:p-6 shadow-xl space-y-5">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-700/60 pb-3">
