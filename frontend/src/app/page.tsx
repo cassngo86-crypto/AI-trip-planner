@@ -165,7 +165,7 @@ function SearchableCombobox({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const matches = options.filter((opt) =>
-    opt.toLowerCase().includes(value.toLowerCase())
+    opt.toLowerCase().includes((value || "").toLowerCase())
   );
   const filteredOptions = matches.length > 0 ? matches : options;
 
@@ -198,7 +198,7 @@ function SearchableCombobox({
           autoComplete="off"
           onChange={(e) => {
             onChange(e.target.value);
-            setIsOpen(true);
+            if (!isOpen) setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
@@ -227,7 +227,7 @@ function SearchableCombobox({
                 className="px-3 py-2 text-slate-200 hover:bg-blue-600 hover:text-white cursor-pointer transition flex items-center justify-between"
               >
                 <span>{opt}</span>
-                {value.toLowerCase() === opt.toLowerCase() && (
+                {(value || "").toLowerCase() === opt.toLowerCase() && (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 )}
               </li>
@@ -259,11 +259,10 @@ export default function Home() {
   const [arrivalTime, setArrivalTime] = useState("10:00");
   const [departureTime, setDepartureTime] = useState("18:00");
 
-  // Dynamic airport options based on selected country with fallbacks
   const airportOptions = AIRPORTS_BY_COUNTRY[selectedCountry] || [
     "Major International Airport (Main)",
     "Secondary Regional Airport",
-    "Capital City Airport"
+    "Capital City Airport",
   ];
 
   // Multi-Stop State
@@ -277,12 +276,11 @@ export default function Home() {
   const [activeDayTab, setActiveDayTab] = useState<number>(1);
   const [loading, setLoading] = useState(false);
 
-  // Handle Country selection change & update available airports
   const handleCountryChange = (newCountry: string) => {
     setSelectedCountry(newCountry);
     const availableAirports = AIRPORTS_BY_COUNTRY[newCountry] || [
       "Major International Airport (Main)",
-      "Secondary Regional Airport"
+      "Secondary Regional Airport",
     ];
     setArrivalGateway(availableAirports[0]);
     setDepartureGateway(availableAirports[availableAirports.length > 1 ? 1 : 0]);
@@ -424,7 +422,6 @@ export default function Home() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-blue-600/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
 
       <main className="relative max-w-5xl mx-auto px-4 py-8 space-y-8">
-        
         {/* Header */}
         <header className="space-y-2 border-b border-slate-800 pb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide">
@@ -441,7 +438,6 @@ export default function Home() {
         {/* Form Card */}
         <section className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {/* Country & Preferences */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <SearchableCombobox
@@ -575,62 +571,75 @@ export default function Home() {
               </div>
 
               <div className="space-y-3">
-                {stops.map((stop, index) => (
-                  <div
-                    key={stop.id}
-                    className="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3"
-                  >
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                      <span className="text-xs font-bold text-indigo-400">
-                        Stop #{index + 1}
-                      </span>
-                      {stops.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeStop(stop.id)}
-                          className="text-slate-400 hover:text-red-400 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+                {stops.map((stop, index) => {
+                  const currentCityHotelOptions = HOTEL_SUGGESTIONS[stop.city] || [
+                    "City Centre",
+                    "Main Station Area",
+                    "Downtown / Financial District",
+                    "Old Town / Historic Area",
+                  ];
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <SearchableCombobox
-                        label="City / Destination"
-                        value={stop.city}
-                        onChange={(val) => updateStop(stop.id, "city", val)}
-                        options={citiesList}
-                        placeholder="Select or type city..."
-                        loading={loadingCities}
-                        icon={Navigation}
-                      />
-
-                      <div>
-                        <label className="text-xs font-medium text-slate-300 flex items-center gap-1 mb-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-blue-400" /> Duration (Days)
-                        </label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={15}
-                          value={stop.days}
-                          onChange={(e) => updateStop(stop.id, "days", Number(e.target.value))}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
-                        />
+                  return (
+                    <div
+                      key={stop.id}
+                      className="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3"
+                    >
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span className="text-xs font-bold text-indigo-400">
+                          Stop #{index + 1}
+                        </span>
+                        {stops.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeStop(stop.id)}
+                            className="text-slate-400 hover:text-red-400 transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
 
-                      <SearchableCombobox
-                        label="Hotel / Stay Zone"
-                        value={stop.hotelLocation}
-                        onChange={(val) => updateStop(stop.id, "hotelLocation", val)}
-                        options={HOTEL_SUGGESTIONS[stop.city] || ["City Centre", "Main Station Area"]}
-                        placeholder="Hotel name or area..."
-                        icon={Hotel}
-                      />
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <SearchableCombobox
+                          label="City / Destination"
+                          value={stop.city}
+                          onChange={(val) => updateStop(stop.id, "city", val)}
+                          options={
+                            citiesList.length > 0
+                              ? citiesList
+                              : ["Tokyo", "Kyoto", "Osaka", "Sapporo", "Zurich", "Lucerne", "Singapore"]
+                          }
+                          placeholder="Select or type city..."
+                          loading={loadingCities}
+                          icon={Navigation}
+                        />
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 flex items-center gap-1 mb-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-blue-400" /> Duration (Days)
+                          </label>
+                          <input
+                            type="number"
+                            min={1}
+                            max={15}
+                            value={stop.days}
+                            onChange={(e) => updateStop(stop.id, "days", Number(e.target.value))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
+                          />
+                        </div>
+
+                        <SearchableCombobox
+                          label="Hotel / Stay Zone"
+                          value={stop.hotelLocation}
+                          onChange={(val) => updateStop(stop.id, "hotelLocation", val)}
+                          options={currentCityHotelOptions}
+                          placeholder="Hotel name or area..."
+                          icon={Hotel}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
