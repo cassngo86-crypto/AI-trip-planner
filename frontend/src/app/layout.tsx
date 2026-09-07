@@ -9,12 +9,17 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Open-Jaw Trip Planner",
-  description: "Multi-city travel itinerary planner",
+  title: "Trip Architect",
+  description: "Open-Jaw AI Route Planner",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "TripPlanner",
+    title: "Trip Architect",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 

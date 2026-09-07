@@ -19,6 +19,7 @@ import {
   Trash2,
   PlaneTakeoff,
   PlaneLanding,
+  Smartphone,
 } from "lucide-react";
 
 const WORLDWIDE_COUNTRIES = [
@@ -202,12 +203,12 @@ function SearchableCombobox({
           }}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none transition placeholder:text-slate-500"
+          className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none transition placeholder:text-slate-500 active:bg-slate-900"
         />
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
         >
           <ChevronDown className="w-4 h-4" />
         </button>
@@ -224,7 +225,7 @@ function SearchableCombobox({
                   onChange(opt);
                   setIsOpen(false);
                 }}
-                className="px-3 py-2 text-slate-200 hover:bg-blue-600 hover:text-white cursor-pointer transition flex items-center justify-between"
+                className="px-3.5 py-3 text-slate-200 hover:bg-blue-600 active:bg-blue-700 hover:text-white cursor-pointer transition flex items-center justify-between"
               >
                 <span>{opt}</span>
                 {(value || "").toLowerCase() === opt.toLowerCase() && (
@@ -233,7 +234,7 @@ function SearchableCombobox({
               </li>
             ))
           ) : (
-            <li className="px-3 py-2 text-xs text-slate-400 italic">
+            <li className="px-3.5 py-3 text-xs text-slate-400 italic">
               Type to enter custom entry
             </li>
           )}
@@ -418,28 +419,49 @@ export default function Home() {
   const currentDayData = itinerary.find((d) => d.day === activeDayTab) || itinerary[0];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-16">
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-blue-600/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
 
-      <main className="relative max-w-5xl mx-auto px-4 py-8 space-y-8">
-        {/* Header */}
-        <header className="space-y-2 border-b border-slate-800 pb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5" /> Open-Jaw Trip Planner
+      <main className="relative max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
+        
+        {/* Header & Mobile App Icon Branding */}
+        <header className="space-y-3 border-b border-slate-800 pb-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Mobile App Icon */}
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
+                  <Plane className="w-5 h-5 text-blue-400 -rotate-45" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
+                  Trip Architect
+                </h1>
+                <p className="text-xs text-slate-400 font-medium">Open-Jaw AI Route Planner</p>
+              </div>
+            </div>
+
+            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
+              <Sparkles className="w-3 h-3" /> PWA Ready
+            </div>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            AI-Powered Trip Architect
-          </h1>
-          <p className="text-slate-400 text-sm max-w-lg">
-            Effortlessly map out multi-city journeys with customized daily itineraries and seamless arrival-to-departure transit.
-          </p>
         </header>
 
+        {/* Mobile Testing & PWA Notice */}
+        <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between text-xs text-slate-300">
+          <div className="flex items-center gap-2">
+            <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Mobile Optimized: Tap <strong>"Add to Home Screen"</strong> in Safari/Chrome to test as a Native App.</span>
+          </div>
+        </div>
+
         {/* Form Card */}
-        <section className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+        <section className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            
             {/* Country & Preferences */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <SearchableCombobox
                 label="Country / Region"
                 value={selectedCountry}
@@ -466,7 +488,7 @@ export default function Home() {
                   type="number"
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
-                  className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
+                  className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none transition"
                 />
               </div>
 
@@ -477,7 +499,7 @@ export default function Home() {
                 <select
                   value={interest}
                   onChange={(e) => setInterest(e.target.value)}
-                  className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
+                  className="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none transition"
                 >
                   <option value="Culture & History">Culture & History</option>
                   <option value="Foodie / Culinary">Foodie / Culinary</option>
@@ -495,7 +517,7 @@ export default function Home() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Arrival Gateway */}
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                     <PlaneLanding className="w-4 h-4" /> Arrival Logistics
                   </span>
@@ -516,14 +538,14 @@ export default function Home() {
                         type="time"
                         value={arrivalTime}
                         onChange={(e) => setArrivalTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition [color-scheme:dark]"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none transition [color-scheme:dark]"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Departure Gateway */}
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3">
                   <span className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
                     <PlaneTakeoff className="w-4 h-4" /> Departure Logistics
                   </span>
@@ -544,7 +566,7 @@ export default function Home() {
                         type="time"
                         value={departureTime}
                         onChange={(e) => setDepartureTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition [color-scheme:dark]"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none transition [color-scheme:dark]"
                       />
                     </div>
                   </div>
@@ -557,14 +579,14 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Navigation className="w-4 h-4 text-blue-400" /> Destinations & Hotels ({totalDays} Days Total)
+                    <Navigation className="w-4 h-4 text-blue-400" /> Destinations & Hotels ({totalDays} Days)
                   </h3>
-                  <p className="text-xs text-slate-400">Configure city stops and individual stay bases.</p>
+                  <p className="text-xs text-slate-400">Configure stops and stay bases.</p>
                 </div>
                 <button
                   type="button"
                   onClick={addStop}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-semibold hover:bg-blue-600/30 transition"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-semibold hover:bg-blue-600/30 transition active:scale-95"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Stop
                 </button>
@@ -582,7 +604,7 @@ export default function Home() {
                   return (
                     <div
                       key={stop.id}
-                      className="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3"
+                      className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 space-y-3"
                     >
                       <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                         <span className="text-xs font-bold text-indigo-400">
@@ -592,14 +614,14 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={() => removeStop(stop.id)}
-                            className="text-slate-400 hover:text-red-400 transition"
+                            className="text-slate-400 hover:text-red-400 transition p-1"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <SearchableCombobox
                           label="City / Destination"
                           value={stop.city}
@@ -624,7 +646,7 @@ export default function Home() {
                             max={15}
                             value={stop.days}
                             onChange={(e) => updateStop(stop.id, "days", Number(e.target.value))}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:border-blue-500 focus:outline-none transition"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none transition"
                           />
                         </div>
 
@@ -647,12 +669,12 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-xl shadow-blue-600/25 transition-all hover:scale-[1.005] active:scale-[0.995] disabled:opacity-50 flex justify-center items-center gap-2"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-xl shadow-blue-600/25 transition-all active:scale-[0.98] disabled:opacity-50 flex justify-center items-center gap-2"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  Generating Route across Gateways...
+                  Generating Route...
                 </>
               ) : (
                 <>
@@ -665,38 +687,38 @@ export default function Home() {
 
         {/* Streaming Status */}
         {status && (
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm animate-pulse">
-            <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs sm:text-sm animate-pulse">
+            <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping shrink-0" />
             <span><strong>Agent Status:</strong> {status}</span>
           </div>
         )}
 
         {/* Itinerary Display */}
         {itinerary.length > 0 && (
-          <section className="space-y-6">
+          <section className="space-y-4">
             <div className="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
               {itinerary.map((d) => (
                 <button
                   key={d.day}
                   onClick={() => setActiveDayTab(d.day)}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap flex items-center gap-2 ${
+                  className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 ${
                     activeDayTab === d.day
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                       : "bg-slate-800/80 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                   }`}
                 >
                   <span>Day {d.day}</span>
-                  {d.city && <span className="text-xs opacity-75">({d.city})</span>}
+                  {d.city && <span className="text-[10px] opacity-75">({d.city})</span>}
                 </button>
               ))}
             </div>
 
             {currentDayData && (
-              <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-700/60 pb-4">
+              <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4 sm:p-6 shadow-xl space-y-5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-700/60 pb-3">
                   <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold">
+                    <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold">
                         Day {currentDayData.day}
                       </span>
                       {currentDayData.title}
@@ -713,27 +735,27 @@ export default function Home() {
                   {currentDayData.activities.map((act, idx) => (
                     <div
                       key={idx}
-                      className="group relative pl-6 border-l-2 border-slate-700 hover:border-blue-500 transition-colors space-y-2 py-1"
+                      className="group relative pl-5 border-l-2 border-slate-700 hover:border-blue-500 transition-colors space-y-2 py-1"
                     >
                       <div className="absolute -left-[7px] top-2 w-3 h-3 rounded-full bg-slate-900 border-2 border-slate-500 group-hover:border-blue-500 group-hover:bg-blue-500 transition-colors" />
 
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-center gap-3">
-                          <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2.5 py-1 rounded-md">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                        <div className="flex items-center gap-2.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2 py-0.5 rounded-md">
                             <Clock className="w-3 h-3" /> {act.time}
                           </span>
-                          <h3 className="text-sm font-semibold text-slate-100 group-hover:text-white transition">
+                          <h3 className="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-white transition">
                             {act.title}
                           </h3>
                         </div>
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-900 text-slate-300 border border-slate-700/50 self-start sm:self-auto">
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-900 text-slate-300 border border-slate-700/50 self-start sm:self-auto">
                           {act.cost}
                         </span>
                       </div>
 
                       {act.transit_info && (
                         <p className="text-xs text-slate-400 flex items-center gap-1.5 pl-0.5">
-                          <Navigation className="w-3 h-3 text-slate-500" />
+                          <Navigation className="w-3 h-3 text-slate-500 shrink-0" />
                           <span><strong>Transit:</strong> {act.transit_info}</span>
                         </p>
                       )}
